@@ -104,6 +104,17 @@ public class Bayespam
                                 " in spam: "    + counter.counter_spam);
         }
     }
+    
+    /// function for checking numerals
+    public static boolean isNumeric(final CharSequence cs) {
+        final int sz = cs.length();
+        for (int i = 0; i < sz; i++) {
+            if (!Character.isDigit(cs.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 
     // Read the words from messages and add them to your vocabulary. The boolean type determines whether the messages are regular or not  
@@ -127,11 +138,18 @@ public class Bayespam
             
             while ((line = in.readLine()) != null)                      // read a line
             {
+                line = line.replaceAll("\\p{Punct}","");                /// remove punctuation
+                line = line.toLowerCase();                  /// convert to lower case
                 StringTokenizer st = new StringTokenizer(line);         // parse it into words
-        
+                
                 while (st.hasMoreTokens())                  // while there are stille words left..
                 {
-                    addWord(st.nextToken(), type);                  // add them to the vocabulary
+                    String token = st.nextToken();
+                    if (token.length() >= 4) {              /// do not accept words that have less than 4 letters
+                        if (!isNumeric(token)) {            /// check for numerals
+                            addWord(token, type);                  // add them to the vocabulary
+                        }
+                    }
                 }
             }
 
@@ -160,7 +178,7 @@ public class Bayespam
         readMessages(MessageType.SPAM);
 
         // Print out the hash table
-        //printVocab();
+        printVocab();
         System.out.println(listing_regular.length);
         System.out.println(listing_spam.length);
         // Now all students must continue from here:
