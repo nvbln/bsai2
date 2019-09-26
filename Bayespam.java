@@ -1,24 +1,18 @@
 import java.io.*;
 import java.util.*;
 
-public class Bayespam
-{
+public class Bayespam {
     // This defines the two types of messages we have.
-    static enum MessageType
-    {
-        NORMAL, SPAM
-    }
+    static enum MessageType { NORMAL, SPAM }
 
     // This a class with two counters (for regular and for spam)
-    static class Multiple_Counter
-    {
+    static class Multiple_Counter {
         int counter_spam    = 0;
         int counter_regular = 0;
 
         // Increase one of the counters by one
-        public void incrementCounter(MessageType type)
-        {
-            if ( type == MessageType.NORMAL ){
+        public void incrementCounter(MessageType type) {
+            if (type == MessageType.NORMAL) {
                 ++counter_regular;
             } else {
                 ++counter_spam;
@@ -31,15 +25,15 @@ public class Bayespam
     private static File[] listing_spam = new File[0];
 
     // A hash table for the vocabulary (word searching is very fast in a hash table)
-    private static Hashtable <String, Multiple_Counter> vocab = new Hashtable <String, Multiple_Counter> ();
+    private static Hashtable<String, Multiple_Counter> vocab 
+            = new Hashtable<String, Multiple_Counter>();
 
     
     // Add a word to the vocabulary
-    private static void addWord(String word, MessageType type)
-    {
+    private static void addWord(String word, MessageType type) {
         Multiple_Counter counter = new Multiple_Counter();
 
-        if ( vocab.containsKey(word) ){                  // if word exists already in the vocabulary..
+        if (vocab.containsKey(word)) {                  // if word exists already in the vocabulary..
             counter = vocab.get(word);                  // get the counter from the hashtable
         }
         counter.incrementCounter(type);                 // increase the counter appropriately
@@ -49,59 +43,62 @@ public class Bayespam
 
 
     // List the regular and spam messages
-    private static void listDirs(File dir_location)
-    {
+    private static void listDirs(File dir_location) {
         // List all files in the directory passed
         File[] dir_listing = dir_location.listFiles();
-	String folder_name; 
-	Boolean spam_found = false, regular_found = false;
+	    String folder_name; 
+	    Boolean spam_found = false, regular_found = false;
 
         // Check that there are exactly 2 subdirectories
-        if ( dir_listing.length != 2 )
-        {
-            System.out.println( "- Error: the directory should contain exactly 2 subdirectories (named spam and regular).\n" );
+        if (dir_listing.length != 2) {
+            System.out.println("- Error: the directory should contain exactly 2 subdirectories (named spam and regular).\n");
             Runtime.getRuntime().exit(0);
         }
 	
-	// Loop through all subdirectories
-	for (File f : dir_listing) {
+        // Loop through all subdirectories
+        for (File f : dir_listing) {
             folder_name = f.toString();
             // If the folder_name ends in the word spam, store it as the spam folder
-            if (folder_name.length() > 3 && folder_name.substring(folder_name.length() - 4).equals("spam")) {
+            if (folder_name.length() > 3 
+                    && folder_name.substring(folder_name.length() - 4).equals("spam")) {
                 listing_spam = f.listFiles();
                 spam_found = true;
-            // If the folder_name ends in the word regular, store it as the regular folder
-            } else if (folder_name.length() > 6 && folder_name.substring(folder_name.length() - 7).equals("regular")) {
+                // If the folder_name ends in the word regular, store it as the regular folder
+            } else if (folder_name.length() > 6 
+                    && folder_name.substring(folder_name.length() - 7).equals("regular")) {
                 listing_regular = f.listFiles();
                 regular_found = true;
             }
-            
-	}
+        }
 	
-	if (!spam_found) {
+        if (!spam_found) {
             System.out.println( "- Error: directory with spam messages not found. Make sure your input directory contains a folder named spam\n" );
             Runtime.getRuntime().exit(0);
-	}
-	if (!regular_found) {
+        }
+
+        if (!regular_found) {
             System.out.println( "- Error: directory with regular messages not found. Make sure your input directory contains a folder named regular\n" );
             Runtime.getRuntime().exit(0);
-	}
+        }
+
     }
     
     // Print the current content of the vocabulary
-    private static void printVocab()
-    {
+    private static void printVocab() {
         Multiple_Counter counter = new Multiple_Counter();
 
-        for (Enumeration<String> e = vocab.keys() ; e.hasMoreElements() ;)
-        {   
+        for (Enumeration<String> e = vocab.keys(); e.hasMoreElements() ;) {   
             String word;
             
             word = e.nextElement();
             counter  = vocab.get(word);
             
-            System.out.println( word + " | in regular: " + counter.counter_regular + 
-                                " in spam: "    + counter.counter_spam);
+            System.out.println(word 
+                               + " | in regular: " 
+                               + counter.counter_regular 
+                               + " in spam: " 
+                               + counter.counter_spam
+                    );
         }
     }
     
@@ -118,32 +115,23 @@ public class Bayespam
 
 
     // Read the words from messages and add them to your vocabulary. The boolean type determines whether the messages are regular or not  
-    private static void readMessages(MessageType type)
-    throws IOException
-    {
+    private static void readMessages(MessageType type) throws IOException {
         File[] messages = new File[0];
 
-        if (type == MessageType.NORMAL){
-            messages = listing_regular;
-        } else {
-            messages = listing_spam;
-        }
-        
-        for (int i = 0; i < messages.length; ++i)
-        {
+        messages = (type == MessageType.NORMAL) ? listing_regular : listing_spam;
+
+        for (int i = 0; i < messages.length; ++i) {
             FileInputStream i_s = new FileInputStream( messages[i] );
             BufferedReader in = new BufferedReader(new InputStreamReader(i_s));
             String line;
             String word;
             
-            while ((line = in.readLine()) != null)                      // read a line
-            {
+            while ((line = in.readLine()) != null) {                    // read a line
                 line = line.replaceAll("\\p{Punct}","");                /// remove punctuation
                 line = line.toLowerCase();                  /// convert to lower case
                 StringTokenizer st = new StringTokenizer(line);         // parse it into words
                 
-                while (st.hasMoreTokens())                  // while there are stille words left..
-                {
+                while (st.hasMoreTokens()) {                 // while there are stille words left..
                     String token = st.nextToken();
                     if (token.length() >= 4) {              /// do not accept words that have less than 4 letters
                         if (!isNumeric(token)) {            /// check for numerals
@@ -157,16 +145,13 @@ public class Bayespam
         }
     }
    
-    public static void main(String[] args)
-    throws IOException
-    {
+    public static void main(String[] args)  throws IOException {
         // Location of the directory (the path) taken from the cmd line (first arg)
         File dir_location = new File( args[0] );
         
         // Check if the cmd line arg is a directory
-        if ( !dir_location.isDirectory() )
-        {
-            System.out.println( "- Error: cmd line arg not a directory.\n" );
+        if (!dir_location.isDirectory()) {
+            System.out.println("- Error: cmd line arg not a directory.\n");
             Runtime.getRuntime().exit(0);
         }
 
