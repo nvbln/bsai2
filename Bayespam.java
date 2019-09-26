@@ -135,18 +135,23 @@ public class Bayespam {
             BufferedReader in = new BufferedReader(new InputStreamReader(i_s));
             String line;
             String word;
-            
-            while ((line = in.readLine()) != null) {                    // read a line
-                line = line.replaceAll("\\p{Punct}","");                /// remove punctuation
-                line = line.toLowerCase();                  /// convert to lower case
-                StringTokenizer st = new StringTokenizer(line);         // parse it into words
-                
-                while (st.hasMoreTokens()) {                 // while there are stille words left..
+            // Read a line
+            while ((line = in.readLine()) != null) {                
+                /// Remove punctuation
+                line = line.replaceAll("\\p{Punct}","");
+                /// Convert to lower case
+                line = line.toLowerCase();                
+                // Parse it into words
+                StringTokenizer st = new StringTokenizer(line);                
+                // While there are stille words left..
+                while (st.hasMoreTokens()) {
                     String token = st.nextToken();
-                    if (token.length() >= 4) {              /// do not accept words that have less than 4 letters
-                        if (!isNumeric(token)) {            /// check for numerals
-                            addWord(token, type);                  // add them to the vocabulary
-                        }
+                    /// Do not accept words that have less than 4 letters
+                    /// Only accept words that have less than 4 characters
+                    /// and that are not numeric.
+                    if (token.length() >= 4 && !isNumeric(token)) {
+                        // Add them to the vocabulary
+                        addWord(token, type);                                          
                     }
                 }
             }
@@ -178,15 +183,19 @@ public class Bayespam {
         System.out.println(listing_spam.length);
         // Now all students must continue from here:
         //
-        // 1) A priori class probabilities must be computed from the number of regular and spam messages
-        // 2) The vocabulary must be clean: punctuation and digits must be removed, case insensitive
+        // 1) A priori class probabilities must be computed from the number of regular
+        //    and spam messages
+        // 2) The vocabulary must be clean: punctuation and digits must be removed,
+        //    case insensitive
         // 3) Conditional probabilities must be computed for every word
         // 4) A priori probabilities must be computed for every word
         // 5) Zero probabilities must be replaced by a small estimated value
         // 6) Bayes rule must be applied on new messages, followed by argmax classification
-        // 7) Errors must be computed on the test set (FAR = false accept rate (misses), FRR = false reject rate (false alarms))
+        // 7) Errors must be computed on the test set (FAR = false accept rate (misses),
+        //    FRR = false reject rate (false alarms))
         // 8) Improve the code and the performance (speed, accuracy)
         //
-        // Use the same steps to create a class BigramBayespam which implements a classifier using a vocabulary consisting of bigrams
+        // Use the same steps to create a class BigramBayespam 
+        // which implements a classifier using a vocabulary consisting of bigrams
     }
 }
