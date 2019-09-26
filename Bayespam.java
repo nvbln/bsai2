@@ -5,6 +5,9 @@ public class Bayespam {
     // This defines the two types of messages we have.
     static enum MessageType { NORMAL, SPAM }
 
+    /// This defines the epsilon.
+    public final static int EPSILON = 1;
+
     // This a class with two counters (for regular and for spam)
     static class MultipleCounter {
         int counterSpam    = 0;
@@ -20,6 +23,25 @@ public class Bayespam {
         }
     }
 
+    class CategoricalProbabilities {
+        double regularProbability = 0;
+        double spamProbability = 0;
+
+        public void CategoricalProbabilities(double reg,
+                                             double spam) {
+            regularProbability = reg;
+            spamProbability = spam;
+        }
+
+        public double getRegularProbability() {
+            return regularProbability;
+        }
+
+        public double getSpamProbability() {
+            return spamProbability;
+        }
+    }
+
     // Listings of the two subdirectories (regular/ and spam/)
     private static File[] listingRegular = new File[0];
     private static File[] listingSpam = new File[0];
@@ -28,7 +50,6 @@ public class Bayespam {
     // (word searching is very fast in a hash table)
     private static Hashtable<String, MultipleCounter> vocab 
             = new Hashtable<String, MultipleCounter>();
-
     
     // Add a word to the vocabulary
     private static void addWord(String word, MessageType type) {
@@ -190,6 +211,47 @@ public class Bayespam {
         printVocab();
         System.out.println(listingRegular.length);
         System.out.println(listingSpam.length);
+
+        /// Calculat a priori class probabilities.
+        int totalMessages = listingRegular.length + listingSpam.length;
+        double regularPrioriProbability = listingRegular.length / totalMessages;
+        double spamPrioriProbability = listingSpam.length / totalMessages; 
+
+        /// Count the number of words in the vocab of the regular and spam mails.
+        Set<Map.Entry<String, MultipleCounter>> entrySet = vocab.entrySet();
+        int sizeRegularVocab = 0;
+        int sizeSpamVocab = 0;
+        for (Map.Entry<String, MultipleCounter> entry : entrySet) {
+            sizeRegularVocab += entry.getValue().counterRegular;
+            sizeSpamVocab += entry.getValue().counterSpam;
+        }
+
+        Hashtable<String, CategoricalProbabilities> vocabProbabilities
+                = new Hashtable<String, CategoricalProbabilities>();
+
+        // Calculate class conditionals.
+        for (Map.Entry<String, MultipleCounter> entry : entrySet) {
+            double regularProbability = entry.getValue().counterRegular
+                                        / sizeRegularVocab;
+            double spamProbability = entry.getValue().counterSpam 
+                                     / sizeSpamVocab;
+
+            if (regularProbability == 0) {
+                regularProbability = 
+                        EPSILON / (sizeRegularVocab + sizeSpamVocab);
+            }
+
+            if (spamProbability == 0) {
+                spamProbability =
+                        EPSILON / (sizeRegularVocab + sizeSpamVocab);
+            }
+
+            CategoricalProbabilities probabilities = 
+                    new CategoricalProbabilities(regularProbability, 
+                                                 spamProbability);
+            vocabProbabilities.put(entry.getKey(), probabilities);
+        }
+
         // Now all students must continue from here:
         //
         // 1) A priori class probabilities must be computed from the number of regular
