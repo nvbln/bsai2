@@ -24,7 +24,8 @@ public class Bayespam {
     private static File[] listingRegular = new File[0];
     private static File[] listingSpam = new File[0];
 
-    // A hash table for the vocabulary (word searching is very fast in a hash table)
+    // A hash table for the vocabulary 
+    // (word searching is very fast in a hash table)
     private static Hashtable<String, MultipleCounter> vocab 
             = new Hashtable<String, MultipleCounter>();
 
@@ -55,7 +56,9 @@ public class Bayespam {
 
         // Check that there are exactly 2 subdirectories
         if (dirListing.length != 2) {
-            System.out.println("- Error: the directory should contain exactly 2 subdirectories (named spam and regular).\n");
+            System.out.println("- Error: the directory should contain exactly"
+                               + " 2 subdirectories (named spam and regular)."
+                               + "\n");
             Runtime.getRuntime().exit(0);
         }
 	
@@ -166,7 +169,8 @@ public class Bayespam {
     }
    
     public static void main(String[] args)  throws IOException {
-        // Location of the directory (the path) taken from the cmd line (first arg)
+        // Location of the directory (the path) 
+        // taken from the cmd line (first arg)
         File dirLocation = new File(args[0]);
         
         // Check if the cmd line arg is a directory
