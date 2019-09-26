@@ -23,25 +23,6 @@ public class Bayespam {
         }
     }
 
-    class CategoricalProbabilities {
-        double regularProbability = 0;
-        double spamProbability = 0;
-
-        public void CategoricalProbabilities(double reg,
-                                             double spam) {
-            regularProbability = reg;
-            spamProbability = spam;
-        }
-
-        public double getRegularProbability() {
-            return regularProbability;
-        }
-
-        public double getSpamProbability() {
-            return spamProbability;
-        }
-    }
-
     // Listings of the two subdirectories (regular/ and spam/)
     private static File[] listingRegular = new File[0];
     private static File[] listingSpam = new File[0];
