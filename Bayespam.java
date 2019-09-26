@@ -32,13 +32,17 @@ public class Bayespam {
     // Add a word to the vocabulary
     private static void addWord(String word, MessageType type) {
         Multiple_Counter counter = new Multiple_Counter();
-
-        if (vocab.containsKey(word)) {                  // if word exists already in the vocabulary..
-            counter = vocab.get(word);                  // get the counter from the hashtable
+        // If word exists already in the vocabulary..
+        if (vocab.containsKey(word)) {
+            // Get the counter from the hashtable
+            counter = vocab.get(word);
         }
-        counter.incrementCounter(type);                 // increase the counter appropriately
 
-        vocab.put(word, counter);                       // put the word with its counter into the hashtable
+        // Increase the counter appropriately
+        counter.incrementCounter(type);
+
+        // Put the word with its counter into the hashtable
+        vocab.put(word, counter);
     }
 
 
@@ -58,12 +62,14 @@ public class Bayespam {
         // Loop through all subdirectories
         for (File f : dir_listing) {
             folder_name = f.toString();
-            // If the folder_name ends in the word spam, store it as the spam folder
+            // If the folder_name ends in the word spam,
+            // store it as the spam folder
             if (folder_name.length() > 3 
                     && folder_name.substring(folder_name.length() - 4).equals("spam")) {
                 listing_spam = f.listFiles();
                 spam_found = true;
-                // If the folder_name ends in the word regular, store it as the regular folder
+                // If the folder_name ends in the word regular, 
+                // store it as the regular folder
             } else if (folder_name.length() > 6 
                     && folder_name.substring(folder_name.length() - 7).equals("regular")) {
                 listing_regular = f.listFiles();
@@ -72,15 +78,18 @@ public class Bayespam {
         }
 	
         if (!spam_found) {
-            System.out.println( "- Error: directory with spam messages not found. Make sure your input directory contains a folder named spam\n" );
+            System.out.println("- Error: directory with spam messages not found."
+                               + " Make sure your input directory"
+                               + " contains a folder named spam.\n");
             Runtime.getRuntime().exit(0);
         }
 
         if (!regular_found) {
-            System.out.println( "- Error: directory with regular messages not found. Make sure your input directory contains a folder named regular\n" );
+            System.out.println("- Error: directory with regular messages not found."
+                               + " Make sure your input directory"
+                               + " contains a folder named regular\n");
             Runtime.getRuntime().exit(0);
         }
-
     }
     
     // Print the current content of the vocabulary
@@ -114,7 +123,8 @@ public class Bayespam {
     }
 
 
-    // Read the words from messages and add them to your vocabulary. The boolean type determines whether the messages are regular or not  
+    // Read the words from messages and add them to your vocabulary.
+    // The boolean type determines whether the messages are regular or not  
     private static void readMessages(MessageType type) throws IOException {
         File[] messages = new File[0];
 
