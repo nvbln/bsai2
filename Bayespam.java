@@ -224,7 +224,6 @@ public class Bayespam {
                                  + spamPrioriProbability
                                  + spamProbability;
 
-
        return probabilityRegular > probabilitySpam; 
     }
         
@@ -274,15 +273,30 @@ public class Bayespam {
 
         // Calculate class conditionals.
         for (Map.Entry<String, MultipleCounter> entry : entrySet) {
-            double regularProbability = 
-                    Math.log(entry.getValue().counterRegular / nWordsRegular);
-            double spamProbability = 
-                    Math.log(entry.getValue().counterSpam / nWordsSpam);
-
+            int currentEntryRegular = entry.getValue().counterRegular;
+            int currentEntrySpam = entry.getValue().counterSpam;
+            double regularProbability, spamProbability;
+            
+            if (currentEntryRegular == 0) {
+                regularProbability = 
+                        Math.log(EPSILON / (nWordsRegular + nWordsSpam));
+            } else {
+                regularProbability = Math.log(currentEntryRegular / nWordsRegular);
+            }
+            
+            if (currentEntryRegular == 0) {
+                spamProbability = 
+                        Math.log(EPSILON / (nWordsRegular + nWordsSpam));
+            } else {
+                spamProbability = Math.log(currentEntrySpam / nWordsSpam);
+            }
+            
+            /*
             if (regularProbability == 0) {
                 regularProbability = 
                         Math.log(EPSILON / (nWordsRegular + nWordsSpam));
             }
+            */
 
             CategoricalProbabilities probabilities = 
                     new CategoricalProbabilities(regularProbability, 
