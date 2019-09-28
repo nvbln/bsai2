@@ -226,6 +226,17 @@ public class Bayespam {
 
        return probabilityRegular > probabilitySpam; 
     }
+    
+    public static void printConfusionMatrix(int trueNegatives,
+            int falsePositives, int nMessagesRegular, int nMessagesSpam) {
+        System.out.println("Total:" + (nMessagesRegular + nMessagesSpam) +
+                "\tRegular\tSpam\n");
+        System.out.println("Classified:\n");
+        System.out.println("Regular:\t" + trueNegatives +
+                "\t" + (nMessagesRegular - trueNegatives));
+        System.out.println("Spam:\t" + falsePositives +
+                "\t" + (nMessagesSpam - falsePositives));
+    }
         
     public static void main(String[] args) {
         // Location of the directory (the path) 
@@ -302,6 +313,28 @@ public class Bayespam {
                     new CategoricalProbabilities(regularProbability, 
                                                  spamProbability);
             vocabProbabilities.put(entry.getKey(), probabilities);
+           
+            /// Calculating confusion matrix.
+            
+            /// We assume that finding spam is positive.
+            int trueNegatives = 0,
+                falsePositives = 0;
+            
+            for (int i = 0; i < nMessagesRegular; i++) {
+                trueNegatives += 
+                        classifyMessage(listingRegular[i], vocabProbabilities, vocab,
+                        regularPrioriProbability, spamPrioriProbability,
+                        nWordsRegular + nWordsSpam)? 1:0; 
+            }
+            for (int i = 0; i < nMessagesSpam; i++) {
+                falsePositives += 
+                        classifyMessage(listingSpam[i], vocabProbabilities, vocab,
+                        regularPrioriProbability, spamPrioriProbability,
+                        nWordsRegular + nWordsSpam)? 0:1; 
+            }
+            
+            printConfusionMatrix(trueNegatives, falsePositives,
+                                 nMessagesRegular, nMessagesSpam);
         }
 
         // Now all students must continue from here:
