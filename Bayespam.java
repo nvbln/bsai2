@@ -196,7 +196,7 @@ public class Bayespam {
         return tokens;
     }
         
-    public static void main(String[] args)  throws IOException {
+    public static void main(String[] args) {
         // Location of the directory (the path) 
         // taken from the cmd line (first arg)
         File dirLocation = new File(args[0]);
