@@ -195,6 +195,42 @@ public class Bayespam {
 
         return tokens;
     }
+
+    public static boolean classifyMessage(File message, 
+            Hashtable<String, CategoricalProbabilities> probabilities,
+            Hashtable<String, MultipleCounter> vocabulary,
+            double regularPrioriProbability,
+            double spamPrioriProbability,
+            int amountOfWords) {
+
+        List<String> words = tokeniseMessage(message);
+        double wordProbability = 0;
+        double regularProbability = 0;
+        double spamProbability = 0;
+
+        for (String word : words) {
+            regularProbability += 
+                    Math.log(probabilities.get(word).getRegularProbability());
+            spamProbability += 
+                    Math.log(probabilities.get(word).getSpamProbability());
+            MultipleCounter wordCounter = vocabulary.get(word);
+            wordProbability *= 
+                    Math.log(
+                    (wordCounter.counterRegular + wordCounter.counterSpam)
+                    / amountOfWords
+                    );
+        }
+
+        double probabilityRegular = (1 / wordProbability) 
+                                    + regularPrioriProbability 
+                                    + regularProbability;
+        double probabilitySpam = (1 / wordProbability)
+                                 + spamPrioriProbability
+                                 + spamProbability;
+
+
+       return unlog(probabilityRegular) > unlog(probabilitySpam); 
+    }
         
     public static void main(String[] args) {
         // Location of the directory (the path) 
