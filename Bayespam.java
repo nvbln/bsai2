@@ -131,18 +131,37 @@ public class Bayespam {
         return true;
     }
 
-
     // Read the words from messages and add them to your vocabulary.
     // The boolean type determines whether the messages are regular or not  
-    private static void readMessages(MessageType type) throws IOException {
+    private static void readMessages(MessageType type) {
         File[] messages = new File[0];
 
         messages = (type == MessageType.NORMAL) ? listingRegular : listingSpam;
 
         for (int i = 0; i < messages.length; ++i) {
-            FileInputStream fileInputStream = new FileInputStream(messages[i]);
-            BufferedReader in = 
-                    new BufferedReader(new InputStreamReader(fileInputStream));
+            List<String> tokens = tokeniseMessage(messages[i]);
+            for (String token : tokens) {
+                /// Do not accept words that have less than 4 letters
+                /// Only accept words that have less than 4 characters
+                /// and that are not numeric.
+                if (token.length() >= 4 && !isNumeric(token)) {
+
+                    // Add them to the vocabulary
+                    addWord(token, type);                                          
+                }
+            }
+        }
+    }
+
+    public static List<String> tokeniseMessage(File message) {
+        List<String> tokens = new ArrayList<String>();
+
+        BufferedReader in = null;
+        FileInputStream fileInputStream = null;
+
+        try {
+            fileInputStream = new FileInputStream(message);
+            in = new BufferedReader(new InputStreamReader(fileInputStream));
             String line, word;
             // Read a line
             while ((line = in.readLine()) != null) {                
@@ -158,22 +177,25 @@ public class Bayespam {
 
                 // While there are stille words left..
                 while (st.hasMoreTokens()) {
-                    String token = st.nextToken();
-
-                    /// Do not accept words that have less than 4 letters
-                    /// Only accept words that have less than 4 characters
-                    /// and that are not numeric.
-                    if (token.length() >= 4 && !isNumeric(token)) {
-
-                        // Add them to the vocabulary
-                        addWord(token, type);                                          
-                    }
+                    tokens.add(st.nextToken());
                 }
             }
-            in.close();
+        } catch (FileNotFoundException fnfe) {
+            fnfe.printStackTrace();
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+        } finally {
+            try {
+                in.close();
+                fileInputStream.close();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
         }
+
+        return tokens;
     }
-   
+        
     public static void main(String[] args)  throws IOException {
         // Location of the directory (the path) 
         // taken from the cmd line (first arg)
