@@ -209,16 +209,12 @@ public class Bayespam {
         double spamProbability = 0;
 
         for (String word : words) {
-            regularProbability += 
-                    Math.log(probabilities.get(word).getRegularProbability());
-            spamProbability += 
-                    Math.log(probabilities.get(word).getSpamProbability());
+            regularProbability += probabilities.get(word).getRegularProbability();
+            spamProbability += probabilities.get(word).getSpamProbability();
             MultipleCounter wordCounter = vocabulary.get(word);
-            wordProbability *= 
-                    Math.log(
+            wordProbability += 
                     (wordCounter.counterRegular + wordCounter.counterSpam)
-                    / amountOfWords
-                    );
+                    / amountOfWords;
         }
 
         double probabilityRegular = (1 / wordProbability) 
@@ -229,7 +225,7 @@ public class Bayespam {
                                  + spamProbability;
 
 
-       return unlog(probabilityRegular) > unlog(probabilitySpam); 
+       return probabilityRegular > probabilitySpam; 
     }
         
     public static void main(String[] args) {
