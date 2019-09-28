@@ -255,20 +255,22 @@ public class Bayespam {
         System.out.println(listingRegular.length);
         System.out.println(listingSpam.length);
 
-        /// Calculat a priori class probabilities.
-        int totalMessages = listingRegular.length + listingSpam.length;
+        /// Calculate a priori class probabilities.
+        int nMessagesRegular = listingRegular.length;
+        int nMessagesSpam = listingSpam.length;
+        int totalMessages = nMessagesRegular + nMessagesSpam;
         double regularPrioriProbability = 
-                Math.log(listingRegular.length / totalMessages);
+                Math.log(nMessagesRegular / totalMessages);
         double spamPrioriProbability = 
-                Math.log(listingSpam.length / totalMessages); 
+                Math.log(nMessagesSpam / totalMessages); 
 
         /// Count the number of words in the vocab of the regular and spam mails.
         Set<Map.Entry<String, MultipleCounter>> entrySet = vocab.entrySet();
-        int sizeRegularVocab = 0;
-        int sizeSpamVocab = 0;
+        int nWordsRegular = 0;
+        int nWordsSpam = 0;
         for (Map.Entry<String, MultipleCounter> entry : entrySet) {
-            sizeRegularVocab += entry.getValue().counterRegular;
-            sizeSpamVocab += entry.getValue().counterSpam;
+            nWordsRegular += entry.getValue().counterRegular;
+            nWordsSpam += entry.getValue().counterSpam;
         }
 
         Hashtable<String, CategoricalProbabilities> vocabProbabilities
@@ -277,18 +279,13 @@ public class Bayespam {
         // Calculate class conditionals.
         for (Map.Entry<String, MultipleCounter> entry : entrySet) {
             double regularProbability = 
-                    Math.log(entry.getValue().counterRegular / sizeRegularVocab);
+                    Math.log(entry.getValue().counterRegular / nWordsRegular);
             double spamProbability = 
-                    Math.log(entry.getValue().counterSpam / sizeSpamVocab);
+                    Math.log(entry.getValue().counterSpam / nWordsSpam);
 
             if (regularProbability == 0) {
                 regularProbability = 
-                        Math.log(EPSILON / (sizeRegularVocab + sizeSpamVocab));
-            }
-
-            if (spamProbability == 0) {
-                spamProbability =
-                        Math.log(EPSILON / (sizeRegularVocab + sizeSpamVocab));
+                        Math.log(EPSILON / (nWordsRegular + nWordsSpam));
             }
 
             CategoricalProbabilities probabilities = 
