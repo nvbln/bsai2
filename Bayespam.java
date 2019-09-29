@@ -232,9 +232,6 @@ public class Bayespam {
                                  + spamPrioriProbability
                                  + spamProbability;
        
-       System.out.println(regularPrioriProbability + " " + regularProbability);
-       System.out.println(spamPrioriProbability + " " + spamProbability);
-       System.out.println(probabilityRegular + " " + probabilitySpam);
        return probabilityRegular > probabilitySpam; 
     }
     
@@ -245,7 +242,7 @@ public class Bayespam {
         System.out.println("Classified:\n");
         System.out.println("Regular:\t" + trueNegatives +
                 "\t" + (nMessagesRegular - trueNegatives));
-        System.out.println("Spam:\t" + falsePositives +
+        System.out.println("Spam:\t\t" + falsePositives +
                 "\t" + (nMessagesSpam - falsePositives));
     }
         
@@ -323,6 +320,7 @@ public class Bayespam {
             CategoricalProbabilities probabilities = 
                     new CategoricalProbabilities(regularProbability, 
                                                  spamProbability);
+            
             vocabProbabilities.put(entry.getKey(), probabilities);
         }
 
@@ -339,15 +337,9 @@ public class Bayespam {
         // 7) Errors must be computed on the test set (FAR = false accept rate (misses),
         //    FRR = false reject rate (false alarms))
         
-        
-        System.out.println("\n" + listingRegular[0]);
-        System.out.println(classifyMessage(listingRegular[1], vocabProbabilities, vocab,
-                regularPrioriProbability, spamPrioriProbability,
-                nWordsRegular + nWordsSpam));
         /// Calculating confusion matrix.
         
         /// We assume that finding spam is positive.
-        /*
         int trueNegatives = 0,
             falsePositives = 0;
         
@@ -361,12 +353,12 @@ public class Bayespam {
             falsePositives += 
                     classifyMessage(listingSpam[i], vocabProbabilities, vocab,
                     regularPrioriProbability, spamPrioriProbability,
-                    nWordsRegular + nWordsSpam)? 0:1; 
+                    nWordsRegular + nWordsSpam)? 1:0; 
         }
         
         printConfusionMatrix(trueNegatives, falsePositives,
                              nMessagesRegular, nMessagesSpam);
-        */
+        
         
         // 8) Improve the code and the performance (speed, accuracy)
         //

@@ -2,8 +2,8 @@ public class CategoricalProbabilities {
     private double regularProbability, spamProbability;
 
     public CategoricalProbabilities(double regularProbability, double spamProbability) {
-        regularProbability = this.regularProbability;
-        spamProbability = this.spamProbability;
+        this.regularProbability = regularProbability;
+        this.spamProbability = spamProbability;
     }
 
     public double getRegularProbability() {
