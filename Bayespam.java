@@ -209,12 +209,20 @@ public class Bayespam {
         double spamProbability = 0;
 
         for (String word : words) {
-            regularProbability += probabilities.get(word).getRegularProbability();
-            spamProbability += probabilities.get(word).getSpamProbability();
+            CategoricalProbabilities wordProbabilities = probabilities.get(word);
+            
+            if (wordProbabilities != null) {
+                regularProbability += wordProbabilities.getRegularProbability();
+                spamProbability += wordProbabilities.getSpamProbability();
+            }
+            
             MultipleCounter wordCounter = vocabulary.get(word);
-            wordProbability += 
-                    (wordCounter.counterRegular + wordCounter.counterSpam)
-                    / amountOfWords;
+            if (wordCounter != null) {
+                wordProbability += 
+                        (wordCounter.counterRegular + wordCounter.counterSpam)
+                        / (double) amountOfWords;
+            }
+
         }
 
         double probabilityRegular = (1 / wordProbability) 
@@ -223,7 +231,10 @@ public class Bayespam {
         double probabilitySpam = (1 / wordProbability)
                                  + spamPrioriProbability
                                  + spamProbability;
-
+       
+       System.out.println(regularPrioriProbability + " " + regularProbability);
+       System.out.println(spamPrioriProbability + " " + spamProbability);
+       System.out.println(probabilityRegular + " " + probabilitySpam);
        return probabilityRegular > probabilitySpam; 
     }
     
@@ -266,9 +277,9 @@ public class Bayespam {
         int nMessagesSpam = listingSpam.length;
         int totalMessages = nMessagesRegular + nMessagesSpam;
         double regularPrioriProbability = 
-                Math.log(nMessagesRegular / totalMessages);
+                Math.log(nMessagesRegular / (double) totalMessages);
         double spamPrioriProbability = 
-                Math.log(nMessagesSpam / totalMessages); 
+                Math.log(nMessagesSpam / (double) totalMessages); 
 
         /// Count the number of words in the vocab of the regular and spam mails.
         Set<Map.Entry<String, MultipleCounter>> entrySet = vocab.entrySet();
@@ -290,16 +301,16 @@ public class Bayespam {
             
             if (currentEntryRegular == 0) {
                 regularProbability = 
-                        Math.log(EPSILON / (nWordsRegular + nWordsSpam));
+                        Math.log(EPSILON / (double) (nWordsRegular + nWordsSpam));
             } else {
-                regularProbability = Math.log(currentEntryRegular / nWordsRegular);
+                regularProbability = Math.log(currentEntryRegular / (double) nWordsRegular);
             }
             
-            if (currentEntryRegular == 0) {
+            if (currentEntrySpam == 0) {
                 spamProbability = 
-                        Math.log(EPSILON / (nWordsRegular + nWordsSpam));
+                        Math.log(EPSILON / (double) (nWordsRegular + nWordsSpam));
             } else {
-                spamProbability = Math.log(currentEntrySpam / nWordsSpam);
+                spamProbability = Math.log(currentEntrySpam / (double) nWordsSpam);
             }
             
             /*
@@ -313,28 +324,6 @@ public class Bayespam {
                     new CategoricalProbabilities(regularProbability, 
                                                  spamProbability);
             vocabProbabilities.put(entry.getKey(), probabilities);
-           
-            /// Calculating confusion matrix.
-            
-            /// We assume that finding spam is positive.
-            int trueNegatives = 0,
-                falsePositives = 0;
-            
-            for (int i = 0; i < nMessagesRegular; i++) {
-                trueNegatives += 
-                        classifyMessage(listingRegular[i], vocabProbabilities, vocab,
-                        regularPrioriProbability, spamPrioriProbability,
-                        nWordsRegular + nWordsSpam)? 1:0; 
-            }
-            for (int i = 0; i < nMessagesSpam; i++) {
-                falsePositives += 
-                        classifyMessage(listingSpam[i], vocabProbabilities, vocab,
-                        regularPrioriProbability, spamPrioriProbability,
-                        nWordsRegular + nWordsSpam)? 0:1; 
-            }
-            
-            printConfusionMatrix(trueNegatives, falsePositives,
-                                 nMessagesRegular, nMessagesSpam);
         }
 
         // Now all students must continue from here:
@@ -349,6 +338,36 @@ public class Bayespam {
         // 6) Bayes rule must be applied on new messages, followed by argmax classification
         // 7) Errors must be computed on the test set (FAR = false accept rate (misses),
         //    FRR = false reject rate (false alarms))
+        
+        
+        System.out.println("\n" + listingRegular[0]);
+        System.out.println(classifyMessage(listingRegular[1], vocabProbabilities, vocab,
+                regularPrioriProbability, spamPrioriProbability,
+                nWordsRegular + nWordsSpam));
+        /// Calculating confusion matrix.
+        
+        /// We assume that finding spam is positive.
+        /*
+        int trueNegatives = 0,
+            falsePositives = 0;
+        
+        for (int i = 0; i < nMessagesRegular; i++) {
+            trueNegatives += 
+                    classifyMessage(listingRegular[i], vocabProbabilities, vocab,
+                    regularPrioriProbability, spamPrioriProbability,
+                    nWordsRegular + nWordsSpam)? 1:0; 
+        }
+        for (int i = 0; i < nMessagesSpam; i++) {
+            falsePositives += 
+                    classifyMessage(listingSpam[i], vocabProbabilities, vocab,
+                    regularPrioriProbability, spamPrioriProbability,
+                    nWordsRegular + nWordsSpam)? 0:1; 
+        }
+        
+        printConfusionMatrix(trueNegatives, falsePositives,
+                             nMessagesRegular, nMessagesSpam);
+        */
+        
         // 8) Improve the code and the performance (speed, accuracy)
         //
         // Use the same steps to create a class BigramBayespam 
