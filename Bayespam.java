@@ -230,6 +230,11 @@ public class Bayespam {
         /// either regular or spam.
         for (String word : words) {
             CategoricalProbabilities wordProbabilities = probabilities.get(word);
+
+            /// Skip over words that are not part of the vocabulary.
+            if (wordProbabilities == null) {
+                continue;
+            }
             
             if (wordProbabilities != null) {
                 regularProbability += wordProbabilities.getRegularProbability();
