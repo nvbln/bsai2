@@ -7,8 +7,9 @@ public class BigramBayespam {
     static enum MessageType { NORMAL, SPAM }
 
     /// This defines the epsilon.
-    public final static double EPSILON = 1;
-    
+    public final static int EPSILON = 1;
+    public final static int MINIMAL_WORD_SIZE = 4;
+
     /// This defines the frequency filtering parameter
     /// (least allowed amount of occurrences)
     public final static int FREQUENCY_LIMIT = 5;
@@ -159,7 +160,7 @@ public class BigramBayespam {
                 /// Do not accept words that have less than 4 letters
                 /// Only accept words that have less than 4 characters
                 /// and that are not numeric.
-                if (token.length() >= 4 && !isNumeric(token)) {
+                if (token.length() >= MINIMAL_WORD_SIZE && !isNumeric(token)) {
 
                     // Add them to the vocabulary
                     addBigram(token, type);                                          
@@ -195,7 +196,7 @@ public class BigramBayespam {
 
                 // While there are stille words left..
                 while (st.hasMoreTokens()) {
-                    final int minSize = 4;
+                    final int minSize = MINIMAL_WORD_SIZE;
                     String first = st.nextToken();
                     if ((first.length() < minSize) || isNumeric(first)) {
                         continue;
