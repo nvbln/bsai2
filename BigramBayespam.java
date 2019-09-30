@@ -376,13 +376,6 @@ public class BigramBayespam {
                 spamProbability = Math.log(currentEntrySpam / (double) nWordsSpam);
             }
             
-            /*
-            if (regularProbability == 0) {
-                regularProbability = 
-                        Math.log(EPSILON / (nWordsRegular + nWordsSpam));
-            }
-            */
-
             CategoricalProbabilities probabilities = 
                     new CategoricalProbabilities(regularProbability, 
                                                  spamProbability);
