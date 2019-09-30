@@ -156,27 +156,18 @@ public class BigramBayespam {
                 while (st.hasMoreTokens()) {
                     final int minSize = 4;
                     String first = st.nextToken();
-                    if (first.length() < minSize) {
+                    if ((first.length() < minSize) || isNumeric(first)) {
                         continue;
                     }
                     while (st.hasMoreTokens()) {
                         String second = st.nextToken();
-                        if (second.length() < minSize) {
+                        if ((second.length() < minSize) || isNumeric(second)) {
                             continue;
                         }
                         String token = first + " " + second;
                         addBigram(token, type);
                         break;
                     }
-
-                    /// Do not accept words that have less than 4 letters
-                    /// Only accept words that have less than 4 characters
-                    /// and that are not numeric.
-                    //if (token.length() >= 4 && !isNumeric(token)) {
-
-                        // Add them to the vocabulary
-                        //addBigram(token, type);                                          
-                    //}
                 }
             }
             in.close();

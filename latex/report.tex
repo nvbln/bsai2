@@ -34,7 +34,13 @@ English and Dutch.  Explain your answer.}
           the chances are equal. Due to the way we classify mails this means that
           mails will be classified as spam since the chance that it is regular needs
           to be bigger in order for it to be classified as regular.
-    \item Ilse Barf:
+    \item Ilse Barf: In this case, if there are an equal number of spam and regular messages
+          (which makes the probability for encoutering one equal), the probability that the
+          message is regular will be equal to the probability that the message is spam (it will be
+          a probability very close to 0).
+          Since the classifier will only classify an e-mail as regular if the probability that it
+          is regular is strictly larger than the probability that it is spam, it will classify the
+          e-mail as spam.
     \item Galina Lesnic:
 \end{itemize}
 
@@ -64,7 +70,27 @@ between and within bigrams?  Explain your answer in 250 words.}
                              make sense in and of itself. It needs a verb in order to make
                              sense. Therefore it is dependent on the bigram containg the
                              verb.
-    \item Ilse Barf:
+    \item Ilse Barf:         The words in a message are not likely to be independent. This
+                             is caused firstly by the fact that a message typically has a
+                             certain subject. Within the context of a subject certain words might
+                             be either more or less common and either more or less likely to
+                             appear together in the same message.
+
+                             Another factor which causes dependece is the grammar of a language,
+                             which forces words to appear together and sometimes even in a
+                             specific order.
+
+                             These arguments also hold for indepency between bigrams, since the
+                             words that are next to each other in a message are not necessarily
+                             dependent, so the dependency between bigrams is very to the dependency
+                             between words.
+
+                             Within bigrams, it is even more likely that the words are dependent,
+                             since words like adjectives, adverbs, and prepositions that go with
+                             certain verbs, are often found in close proximity of the word they go
+                             with. However, this is not always the case, and since we do not
+                             include words with less than four letters, the dependency will be
+                             smaller than initially expected.
     \item Galina Lesnic:
 \end{itemize}
 
