@@ -153,6 +153,8 @@ public class Bayespam {
         }
     }
 
+    /// Replacement of the earlier tokenisation in the readMessages()
+    /// method. This way code can be reused.
     public static List<String> tokeniseMessage(File message) {
         List<String> tokens = new ArrayList<String>();
 
@@ -163,6 +165,7 @@ public class Bayespam {
             fileInputStream = new FileInputStream(message);
             in = new BufferedReader(new InputStreamReader(fileInputStream));
             String line, word;
+
             // Read a line
             while ((line = in.readLine()) != null) {                
 
@@ -185,6 +188,7 @@ public class Bayespam {
         } catch(IOException ioe) {
             ioe.printStackTrace();
         } finally {
+            /// Always close at the end, even if things go wrong.
             try {
                 in.close();
                 fileInputStream.close();
@@ -196,6 +200,9 @@ public class Bayespam {
         return tokens;
     }
 
+    /// Calculate the probability that a certain message classifies
+    /// as one or the other type. Returns true if the message is regular,
+    /// false if it is spam.
     public static boolean classifyMessage(File message, 
             Hashtable<String, CategoricalProbabilities> probabilities,
             Hashtable<String, MultipleCounter> vocabulary,
@@ -203,11 +210,14 @@ public class Bayespam {
             double spamPrioriProbability,
             int amountOfWords) {
 
+        /// Get all the words in the message.
         List<String> words = tokeniseMessage(message);
         double wordProbability = 0;
         double regularProbability = 0;
         double spamProbability = 0;
 
+        /// Use Bayes to calculate the likelihood of the message being
+        /// either regular or spam.
         for (String word : words) {
             CategoricalProbabilities wordProbabilities = probabilities.get(word);
             
