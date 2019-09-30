@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.lang.Math;
 
 public class BigramBayespam {
     // This defines the two types of messages we have.
@@ -26,6 +27,8 @@ public class BigramBayespam {
     // Listings of the two subdirectories (regular/ and spam/)
     private static File[] listingRegular = new File[0];
     private static File[] listingSpam = new File[0];
+    private static File[] testListingRegular = new File[0];
+    private static File[] testListingSpam = new File[0];
 
     // A hash table for the vocabulary 
     // (word searching is very fast in a hash table)
@@ -48,9 +51,12 @@ public class BigramBayespam {
         vocab.put(bigram, counter);
     }
 
+    private static double unlog(double a) {
+        return Math.exp(a);
+    }
 
     // List the regular and spam messages
-    private static void listDirs(File dirLocation) {
+    private static void listDirs(File dirLocation, boolean train) {
         // List all files in the directory passed
         File[] dirListing = dirLocation.listFiles();
 	    String folderName; 
@@ -71,13 +77,21 @@ public class BigramBayespam {
             // store it as the spam folder
             if (folderName.length() > 3 
                     && folderName.substring(folderName.length() - 4).equals("spam")) {
-                listingSpam = file.listFiles();
+                if (train) {
+                    listingSpam = file.listFiles();
+                } else {
+                    testListingSpam = file.listFiles();
+                }
                 spamFound = true;
                 // If the folder_name ends in the word regular, 
                 // store it as the regular folder
             } else if (folderName.length() > 6 
                     && folderName.substring(folderName.length() - 7).equals("regular")) {
-                listingRegular = file.listFiles();
+                if (train) {
+                    listingRegular = file.listFiles();
+                } else {
+                    testListingRegular = file.listFiles();
+                }
                 regularFound = true;
             }
         }
@@ -130,16 +144,39 @@ public class BigramBayespam {
 
     // Read the words from messages and add them to your vocabulary.
     // The boolean type determines whether the messages are regular or not  
-    private static void readMessages(MessageType type) throws IOException {
+    private static void readMessages(MessageType type) {
         File[] messages = new File[0];
 
         messages = (type == MessageType.NORMAL) ? listingRegular : listingSpam;
 
         for (int i = 0; i < messages.length; ++i) {
-            FileInputStream fileInputStream = new FileInputStream(messages[i]);
-            BufferedReader in = 
-                    new BufferedReader(new InputStreamReader(fileInputStream));
+            List<String> tokens = tokeniseMessage(messages[i]);
+            for (String token : tokens) {
+                /// Do not accept words that have less than 4 letters
+                /// Only accept words that have less than 4 characters
+                /// and that are not numeric.
+                if (token.length() >= 4 && !isNumeric(token)) {
+
+                    // Add them to the vocabulary
+                    addBigram(token, type);                                          
+                }
+            }
+        }
+    }
+
+    /// Replacement of the earlier tokenisation in the readMessages()
+    /// method. This way code can be reused.
+    public static List<String> tokeniseMessage(File message) {
+        List<String> tokens = new ArrayList<String>();
+
+        BufferedReader in = null;
+        FileInputStream fileInputStream = null;
+
+        try {
+            fileInputStream = new FileInputStream(message);
+            in = new BufferedReader(new InputStreamReader(fileInputStream));
             String line, word;
+
             // Read a line
             while ((line = in.readLine()) != null) {                
 
@@ -165,16 +202,90 @@ public class BigramBayespam {
                             continue;
                         }
                         String token = first + " " + second;
-                        addBigram(token, type);
+                        tokens.add(token);
                         break;
                     }
                 }
             }
-            in.close();
+        } catch (FileNotFoundException fnfe) {
+            fnfe.printStackTrace();
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+        } finally {
+            /// Always close at the end, even if things go wrong.
+            try {
+                in.close();
+                fileInputStream.close();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
         }
+
+        return tokens;
+    }
+
+    /// Calculate the probability that a certain message classifies
+    /// as one or the other type. Returns true if the message is regular,
+    /// false if it is spam.
+    public static boolean classifyMessage(File message, 
+            Hashtable<String, CategoricalProbabilities> probabilities,
+            Hashtable<String, MultipleCounter> vocabulary,
+            double regularPrioriProbability,
+            double spamPrioriProbability,
+            int amountOfWords) {
+
+        /// Get all the words in the message.
+        List<String> words = tokeniseMessage(message);
+        double wordProbability = 0;
+        double regularProbability = 0;
+        double spamProbability = 0;
+
+        /// Use Bayes to calculate the likelihood of the message being
+        /// either regular or spam.
+        for (String word : words) {
+            CategoricalProbabilities wordProbabilities = probabilities.get(word);
+
+            /// Skip over words that are not part of the vocabulary.
+            if (wordProbabilities == null) {
+                continue;
+            }
+            
+            if (wordProbabilities != null) {
+                regularProbability += wordProbabilities.getRegularProbability();
+                spamProbability += wordProbabilities.getSpamProbability();
+            }
+            
+            MultipleCounter wordCounter = vocabulary.get(word);
+            if (wordCounter != null) {
+                wordProbability += 
+                        (wordCounter.counterRegular + wordCounter.counterSpam)
+                        / (double) amountOfWords;
+            }
+
+        }
+
+        double probabilityRegular = (1 / wordProbability) 
+                                    + regularPrioriProbability 
+                                    + regularProbability;
+        double probabilitySpam = (1 / wordProbability)
+                                 + spamPrioriProbability
+                                 + spamProbability;
+       
+       return probabilityRegular > probabilitySpam; 
+    }
+
+    public static void printConfusionMatrix(int trueNegatives,
+            int falsePositives, int nMessagesRegular, int nMessagesSpam) {
+        System.out.println("Total:" + (nMessagesRegular + nMessagesSpam) +
+                "\tRegular\tSpam\n");
+        System.out.println("Classified:\n");
+        System.out.println("Regular:\t" + trueNegatives +
+                "\t" + (nMessagesRegular - trueNegatives));
+        System.out.println("Spam:\t\t" + falsePositives +
+                "\t" + (nMessagesSpam - falsePositives));
     }
    
-    public static void main(String[] args)  throws IOException {
+    public static void main(String[] args) {
         // Location of the directory (the path) 
         // taken from the cmd line (first arg)
         File dirLocation = new File(args[0]);
@@ -186,7 +297,10 @@ public class BigramBayespam {
         }
 
         // Initialize the regular and spam lists
-        listDirs(dirLocation);
+        listDirs(dirLocation, true);
+
+        File testDirLocation = new File(args[1]);
+        listDirs(testDirLocation, false);
 
         // Read the e-mail messages
         readMessages(MessageType.NORMAL);
@@ -197,18 +311,22 @@ public class BigramBayespam {
         System.out.println(listingRegular.length);
         System.out.println(listingSpam.length);
 
-        /// Calculat a priori class probabilities.
-        int totalMessages = listingRegular.length + listingSpam.length;
-        double regularPrioriProbability = listingRegular.length / totalMessages;
-        double spamPrioriProbability = listingSpam.length / totalMessages; 
+        /// Calculate a priori class probabilities.
+        int nMessagesRegular = listingRegular.length;
+        int nMessagesSpam = listingSpam.length;
+        int totalMessages = nMessagesRegular + nMessagesSpam;
+        double regularPrioriProbability = 
+                Math.log(nMessagesRegular / (double) totalMessages);
+        double spamPrioriProbability = 
+                Math.log(nMessagesSpam / (double) totalMessages); 
 
         /// Count the number of words in the vocab of the regular and spam mails.
         Set<Map.Entry<String, MultipleCounter>> entrySet = vocab.entrySet();
-        int sizeRegularVocab = 0;
-        int sizeSpamVocab = 0;
+        int nWordsRegular = 0;
+        int nWordsSpam = 0;
         for (Map.Entry<String, MultipleCounter> entry : entrySet) {
-            sizeRegularVocab += entry.getValue().counterRegular;
-            sizeSpamVocab += entry.getValue().counterSpam;
+            nWordsRegular += entry.getValue().counterRegular;
+            nWordsSpam += entry.getValue().counterSpam;
         }
 
         Hashtable<String, CategoricalProbabilities> vocabProbabilities
@@ -216,24 +334,35 @@ public class BigramBayespam {
 
         // Calculate class conditionals.
         for (Map.Entry<String, MultipleCounter> entry : entrySet) {
-            double regularProbability = entry.getValue().counterRegular
-                                        / sizeRegularVocab;
-            double spamProbability = entry.getValue().counterSpam 
-                                     / sizeSpamVocab;
-
+            int currentEntryRegular = entry.getValue().counterRegular;
+            int currentEntrySpam = entry.getValue().counterSpam;
+            double regularProbability, spamProbability;
+            
+            if (currentEntryRegular == 0) {
+                regularProbability = 
+                        Math.log(EPSILON / (double) (nWordsRegular + nWordsSpam));
+            } else {
+                regularProbability = Math.log(currentEntryRegular / (double) nWordsRegular);
+            }
+            
+            if (currentEntrySpam == 0) {
+                spamProbability = 
+                        Math.log(EPSILON / (double) (nWordsRegular + nWordsSpam));
+            } else {
+                spamProbability = Math.log(currentEntrySpam / (double) nWordsSpam);
+            }
+            
+            /*
             if (regularProbability == 0) {
                 regularProbability = 
-                        EPSILON / (sizeRegularVocab + sizeSpamVocab);
+                        Math.log(EPSILON / (nWordsRegular + nWordsSpam));
             }
-
-            if (spamProbability == 0) {
-                spamProbability =
-                        EPSILON / (sizeRegularVocab + sizeSpamVocab);
-            }
+            */
 
             CategoricalProbabilities probabilities = 
                     new CategoricalProbabilities(regularProbability, 
                                                  spamProbability);
+            
             vocabProbabilities.put(entry.getKey(), probabilities);
         }
 
@@ -249,6 +378,30 @@ public class BigramBayespam {
         // 6) Bayes rule must be applied on new messages, followed by argmax classification
         // 7) Errors must be computed on the test set (FAR = false accept rate (misses),
         //    FRR = false reject rate (false alarms))
+        
+        /// Calculating confusion matrix.
+        
+        /// We assume that finding spam is positive.
+        int trueNegatives = 0,
+            falsePositives = 0;
+
+        for (int i = 0; i < nMessagesRegular; i++) {
+            trueNegatives += 
+                    classifyMessage(testListingRegular[i], vocabProbabilities, vocab,
+                    regularPrioriProbability, spamPrioriProbability,
+                    nWordsRegular + nWordsSpam)? 1:0; 
+        }
+        for (int i = 0; i < nMessagesSpam; i++) {
+            falsePositives += 
+                    classifyMessage(testListingSpam[i], vocabProbabilities, vocab,
+                    regularPrioriProbability, spamPrioriProbability,
+                    nWordsRegular + nWordsSpam)? 1:0; 
+        }
+        
+        printConfusionMatrix(trueNegatives, falsePositives,
+                             nMessagesRegular, nMessagesSpam);
+        
+        
         // 8) Improve the code and the performance (speed, accuracy)
         //
         // Use the same steps to create a class BigramBayespam 
