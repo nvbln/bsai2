@@ -12,7 +12,7 @@ public class BigramBayespam {
 
     /// This defines the frequency filtering parameter
     /// (least allowed amount of occurrences)
-    public final static int FREQUENCY_LIMIT = 5;
+    public final static int FREQUENCY_LIMIT = 6;
 
     // This a class with two counters (for regular and for spam)
     static class MultipleCounter {
@@ -293,6 +293,7 @@ public class BigramBayespam {
 
     public static void printConfusionMatrix(int trueNegatives,
             int falsePositives, int nMessagesRegular, int nMessagesSpam) {
+        int truePositives = nMessagesSpam - falsePositives;
         System.out.println("Total:" + (nMessagesRegular + nMessagesSpam) +
                 "\tRegular\tSpam\n");
         System.out.println("Classified:\n");
@@ -300,6 +301,9 @@ public class BigramBayespam {
                 "\t" + (nMessagesRegular - trueNegatives));
         System.out.println("Spam:\t\t" + falsePositives +
                 "\t" + (nMessagesSpam - falsePositives));
+        System.out.printf("\nAccuracy: %.0f%%\n", 
+                (trueNegatives + truePositives)*100/
+                (double)(nMessagesRegular + nMessagesSpam));
     }
    
     public static void main(String[] args) {

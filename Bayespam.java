@@ -262,13 +262,17 @@ public class Bayespam {
     
     public static void printConfusionMatrix(int trueNegatives,
             int falsePositives, int nMessagesRegular, int nMessagesSpam) {
+        int truePositives = nMessagesSpam - falsePositives;
         System.out.println("Total:" + (nMessagesRegular + nMessagesSpam) +
                 "\tRegular\tSpam\n");
         System.out.println("Classified:\n");
         System.out.println("Regular:\t" + trueNegatives +
                 "\t" + (nMessagesRegular - trueNegatives));
         System.out.println("Spam:\t\t" + falsePositives +
-                "\t" + (nMessagesSpam - falsePositives));
+                "\t" + truePositives);
+        System.out.printf("\nAccuracy: %.0f%%\n", 
+                (trueNegatives + truePositives)*100/
+                (double)(nMessagesRegular + nMessagesSpam));
     }
         
     public static void main(String[] args) {
