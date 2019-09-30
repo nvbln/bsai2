@@ -27,6 +27,8 @@ public class Bayespam {
     // Listings of the two subdirectories (regular/ and spam/)
     private static File[] listingRegular = new File[0];
     private static File[] listingSpam = new File[0];
+    private static File[] testListingRegular = new File[0];
+    private static File[] testListingSpam = new File[0];
 
     // A hash table for the vocabulary 
     // (word searching is very fast in a hash table)
@@ -54,7 +56,7 @@ public class Bayespam {
     }
 
     // List the regular and spam messages
-    private static void listDirs(File dirLocation) {
+    private static void listDirs(File dirLocation, boolean train) {
         // List all files in the directory passed
         File[] dirListing = dirLocation.listFiles();
 	    String folderName; 
@@ -75,13 +77,21 @@ public class Bayespam {
             // store it as the spam folder
             if (folderName.length() > 3 
                     && folderName.substring(folderName.length() - 4).equals("spam")) {
-                listingSpam = file.listFiles();
+                if (train) {
+                    listingSpam = file.listFiles();
+                } else {
+                    testListingSpam = file.listFiles();
+                }
                 spamFound = true;
                 // If the folder_name ends in the word regular, 
                 // store it as the regular folder
             } else if (folderName.length() > 6 
                     && folderName.substring(folderName.length() - 7).equals("regular")) {
-                listingRegular = file.listFiles();
+                if (train) {
+                    listingRegular = file.listFiles();
+                } else {
+                    testListingRegular = file.listFiles();
+                }
                 regularFound = true;
             }
         }
@@ -268,14 +278,17 @@ public class Bayespam {
         }
 
         // Initialize the regular and spam lists
-        listDirs(dirLocation);
+        listDirs(dirLocation, true);
+        
+        File testDirLocation = new File(args[1]);
+        listDirs(testDirLocation, false);
 
         // Read the e-mail messages
         readMessages(MessageType.NORMAL);
         readMessages(MessageType.SPAM);
 
         // Print out the hash table
-        printVocab();
+        //printVocab();
         System.out.println(listingRegular.length);
         System.out.println(listingSpam.length);
 
@@ -352,16 +365,16 @@ public class Bayespam {
         /// We assume that finding spam is positive.
         int trueNegatives = 0,
             falsePositives = 0;
-        
+
         for (int i = 0; i < nMessagesRegular; i++) {
             trueNegatives += 
-                    classifyMessage(listingRegular[i], vocabProbabilities, vocab,
+                    classifyMessage(testListingRegular[i], vocabProbabilities, vocab,
                     regularPrioriProbability, spamPrioriProbability,
                     nWordsRegular + nWordsSpam)? 1:0; 
         }
         for (int i = 0; i < nMessagesSpam; i++) {
             falsePositives += 
-                    classifyMessage(listingSpam[i], vocabProbabilities, vocab,
+                    classifyMessage(testListingSpam[i], vocabProbabilities, vocab,
                     regularPrioriProbability, spamPrioriProbability,
                     nWordsRegular + nWordsSpam)? 1:0; 
         }
