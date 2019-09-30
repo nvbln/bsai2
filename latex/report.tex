@@ -1,0 +1,71 @@
+\documentclass{article}
+
+\title{Artificial Intelligence assignment 2: Spam Filtering Using a Naive Bayes Text Classifier}
+\author{Ilse Barf (S3500306), Galina Lesnic (SS3367398), Nathan van Beelen (S3392961)}
+
+\begin{document}
+
+\maketitle
+
+\section*{3.3 Example runs}
+\textit{What happens if you train and test on the same data?}
+
+The accuracy will be higher. This is due to the fact that it can calculate
+correlations that are apparent in this particular set of the data but do not
+define the difference between regular and spam mails. In other words, you can
+safely overfit on the train data and get a high accuracy score. Additionally,
+we used the vocabulary of the train data, which will be exactly the same in the
+test if we use the same data for testing. This is not the case if we use a
+different data set for testing.
+
+\section*{5 Final Questions}
+\textit{The  data  used  in  this  assignment  contains  only  e-mails  in  the  English  language.
+What happens if an e-mail in Dutch is given to your spam filter trained with English messages?
+How  will  the  Dutch  message  be  classified?   Assume  that  there  are  no  common  words  in
+English and Dutch.  Explain your answer.}
+\begin{itemize}
+    \item Nathan van Beelen: The messages will be classified according to the number of
+          regular and spam messages used in the training data.
+          This is because the classifier works by calculating the likelihood that a
+          certain word is from a regular or spam mail. However, in Dutch it will not
+          recognise any words. So this chance will be equal for both classifications.
+          The only thing that differs is the chance that a mail is regular or spam based
+          on the number of regular or spam mails. In the case this is also the same,
+          the chances are equal. Due to the way we classify mails this means that
+          mails will be classified as spam since the chance that it is regular needs
+          to be bigger in order for it to be classified as regular.
+    \item Ilse Barf:
+    \item Galina Lesnic:
+\end{itemize}
+
+\textit{ The Naive Bayes assumption is that the attributes (or features) are independent.  Are the
+words  in  a  message  really  independent?   And  what  can  you  say  about  the  independence
+between and within bigrams?  Explain your answer in 250 words.}
+\begin{itemize}
+    \item Nathan van Beelen: No, the individual words are not independent. This is
+                             because language has a certain structure. An adjective
+                             needs a noun for example. Another example would be
+                             semantics. The adjective 'new' would make sense in 
+                             combination with the noun 'concept', but the adjective
+                             'green' does not. This means that 'new' and 'concept'
+                             have a semantic dependence, but 'green' and 'concept'
+                             do not. Both in the case of between bigrams
+                             and within bigrams there is a dependence. The dependence within
+                             bigrams can be explained in a similar way as I did for the
+                             individual words. Another example would be the determiner,
+                             which will always be accompanied by either an adjective or
+                             a noun on which it is dependent. In the case of the dependence
+                             between bigrams it is mostly due to the dependence of words
+                             to form a sentence (although the dependence can also be similar
+                             to within bigrams if the words are split correctly).
+                             To illustrate the dependence between bigrams, consider the
+                             sentence 'Bob is playing soundly.' This will be split in:
+                             'Bob is' and 'playing soundly.' The bigram 'Bob is' doesn't
+                             make sense in and of itself. It needs a verb in order to make
+                             sense. Therefore it is dependent on the bigram containg the
+                             verb.
+    \item Ilse Barf:
+    \item Galina Lesnic:
+\end{itemize}
+
+\end{document}
