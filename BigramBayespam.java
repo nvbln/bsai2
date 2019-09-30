@@ -10,6 +10,10 @@ public class BigramBayespam {
     public final static int EPSILON = 1;
     public final static int MINIMAL_WORD_SIZE = 4;
 
+    /// This defines the frequency filtering parameter
+    /// (least allowed amount of occurrences)
+    public final static int FREQUENCY_LIMIT = 5;
+
     // This a class with two counters (for regular and for spam)
     static class MultipleCounter {
         int counterSpam    = 0;
@@ -224,6 +228,18 @@ public class BigramBayespam {
 
         return tokens;
     }
+    
+    /// Filter vocabulary to eliminate low-frequency bigrams
+    public static void filterByFrequency() {
+        Set<String> keys = vocab.keySet();
+        Iterator<String> iterator = keys.iterator();
+        while (iterator.hasNext()) {
+            MultipleCounter counters = vocab.get(iterator.next());
+            if ((counters.counterRegular + counters.counterSpam) < FREQUENCY_LIMIT) {
+                iterator.remove();
+            }
+        }
+    }
 
     /// Calculate the probability that a certain message classifies
     /// as one or the other type. Returns true if the message is regular,
@@ -306,6 +322,9 @@ public class BigramBayespam {
         // Read the e-mail messages
         readMessages(MessageType.NORMAL);
         readMessages(MessageType.SPAM);
+        
+        /// Filter out low frequency bigrams
+        filterByFrequency();
 
         // Print out the hash table
         printVocab();
