@@ -1,7 +1,7 @@
 \documentclass{article}
 
 \title{Artificial Intelligence assignment 2: Spam Filtering Using a Naive Bayes Text Classifier}
-\author{Ilse Barf (S3500306), Galina Lesnic (SS3367398), Nathan van Beelen (S3392961)}
+\author{Ilse Barf (S3500306), Galina Lesnic (S3367398), Nathan van Beelen (S3392961)}
 
 \begin{document}
 
@@ -18,14 +18,46 @@ we used the vocabulary of the train data, which will be exactly the same in the
 test if we use the same data for testing. This is not the case if we use a
 different data set for testing.
 
-\section*{4}
+\section*{4 Naive Bayes classification based on bigrams}
 
-Evaluate the obtained classifer after you have applied it to the data set.
-(a) How does the bigram classifier perform when compared to your original unigram clas- sifier? Try to explain the difference in performance (if present).
+\textit{(a) How does the bigram classifier perform when compared to your original unigram classifier? Try to explain the difference in performance (if present).}
 
-The bigram classifier performs better for all the runs, as can be seen in the table below... This happens, because bigrams help us account more for the context in which the words occur.
+The bigram classifier performs better in all cases, as can be seen in the tables below.
+\begin{table}[h]
+    \centering
+    \begin{tabular}{c|c c}
+        Train/Test &Train&Test  \\
+        \hline
+        Train & 100\% & 91\% \\
+        Test & 95\% & 100\%
+    \end{tabular}
+    \caption{Table of accuracies for unigram classifier.}
+    \label{tab:my_label}
+\end{table}
 
-(b) Try some different configurations of parameter settings (ε, frequency threshold, minimal word size). How do they influence the performance of the classifier? And what is the use of the frequency threshold in real-world applications?
+\begin{table}[h]
+    \centering
+    \begin{tabular}{c|c c}
+        Train/Test &Train&Test  \\
+        \hline
+        Train& 100\%& 99\% \\
+        Test & 100\% & 100\%
+    \end{tabular}
+    \caption{Table of accuracies for bigram classifier.}
+    \label{tab:my_label}
+\end{table}
+
+This happens, because bigrams help us account more for the context in which the words occur.
+
+\textit{(b) Try some different configurations of parameter settings ($\varepsilon$, frequency threshold, minimal word size). How do they influence the performance of the classifier? And what is the use of the frequency threshold in real-world applications?}
+
+As $\varepsilon$ gets smaller, the system becomes more accurate, which makes sense, since we still want to consider those rarely occurring words very unlikely to be impactful. We decided to settle on the suggested by the assignment value of 1.
+
+With frequency limit it's a bit trickier, since a value that is too small lets through bigrams that aren't too useful and if the frequency limit is too high it filters out too many bigrams, thus not leaving the flexibility for working with new messages. We decided to let through all the bigrams that occurred at least 6 times in total (chosen after trying out different parameter values).
+
+Similar to the frequency limit, word size limit that is too small lets through words on the stop-list, but if the parameter is too high it blocks meaningful words from being considered. We decided on the limit size of 4, since it is fair to assume that majority of stop words (e.g. will, do, be, etc.) are of length 4 or less.
+
+Frequency threshold is usually used in real-world applications to make the vocabulary sizes manageable, since n-gram vocabularies get exponentially bigger and it is fair to assume that the bigrams that are met very rarely are not too useful for categorizing information.
 
 \section*{5 Final Questions}
 \textit{The  data  used  in  this  assignment  contains  only  e-mails  in  the  English  language.
@@ -50,7 +82,7 @@ English and Dutch.  Explain your answer.}
           Since the classifier will only classify an e-mail as regular if the probability that it
           is regular is strictly larger than the probability that it is spam, it will classify the
           e-mail as spam.
-    \item Galina Lesnic:
+    \item Galina Lesnic: Assuming that there are no common words between English and Dutch, the spam filter will classify the e-mail as spam, since our classifier considers the e-mail regular only if it finds in the message more words associated with regular messages, than the ones associated with spam messages. Since there are no words associated with regular messages, 0 can’t be more than any non-negative number (here it will be also 0, so (0 $>$ 0) == False), the message will be classified as spam.
 \end{itemize}
 
 \textit{ The Naive Bayes assumption is that the attributes (or features) are independent.  Are the
@@ -100,7 +132,7 @@ between and within bigrams?  Explain your answer in 250 words.}
                              with. However, this is not always the case, and since we do not
                              include words with less than four letters, the dependency will be
                              smaller than initially expected.
-    \item Galina Lesnic:
+    \item Galina Lesnic: The words in the message are not actually independent, since there has to be some context. Different topics have different common words that are used, e.g. if you see word “kitchen”, you can guess that word “food” will also be in that text. Bigrams try to account for the context a bit, considering that phrases give more context, e.g. “save lives” is more likely to occur in regular e-mail, than “save money”. So the assumed (naive) independence between bigrams allows to decrease amount of calculations and dependence within them allows to be more accurate with context. 
 \end{itemize}
 
 \end{document}
