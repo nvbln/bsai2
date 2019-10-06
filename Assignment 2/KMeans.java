@@ -1,4 +1,5 @@
 import java.util.*;
+import java.lang.Math.*;
 
 public class KMeans extends ClusteringAlgorithm
 {
@@ -83,6 +84,25 @@ public class KMeans extends ClusteringAlgorithm
         }
 
 		// Step 2: Generate a new partition by assigning each datapoint to its closest cluster center
+        for (int i = 0; i < trainData.size(); i++) {
+            double smallestDistance = 
+                    calculateDistance(clusters[0].prototype, trainData.get(i));
+            int clusterIndex = 0;
+
+            for (int j = 1; j < k; j++) {
+                double distance = 
+                        calculateDistance(clusters[j].prototype, 
+                                          trainData.get(i));
+
+                if (distance < smallestDistance) {
+                    smallestDistance = distance;
+                    clusterIndex = j;
+                }
+            }
+
+            clusters[clusterIndex].currentMembers.add(i);
+        }
+
 		// Step 3: recalculate cluster centers
 		// Step 4: repeat until clustermembership stabilizes
 		return false;
@@ -120,6 +140,17 @@ public class KMeans extends ClusteringAlgorithm
         }
 
         return prototype;
+    }
+
+    /// Calculates Euclidean distance between data vector X and prototype P.
+    public double calculateDistance(float[] prototype, float[] pattern) {
+        double sum = 0;
+
+        for (int i = 0; i < prototype.length; i++) {
+            sum += Math.pow((double) (pattern[i] - prototype[i]), 2);
+        }
+
+        return Math.sqrt(sum);
     }
 
 	// The following members are called by RunClustering, in order to present information to the user
