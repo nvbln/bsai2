@@ -103,8 +103,36 @@ public class KMeans extends ClusteringAlgorithm
             clusters[clusterIndex].currentMembers.add(i);
         }
 
-		// Step 3: recalculate cluster centers
-		// Step 4: repeat until clustermembership stabilizes
+        int numberOfTransfers = 0;
+        do {
+            for (int i = 0; i < trainData.size(); i++) {
+                double smallestDistance = 
+                        calculateDistance(clusters[0].prototype, trainData.get(i));
+                int clusterIndex = 0;
+
+                for (int j = 1; j < k; j++) {
+                    double distance = 
+                            calculateDistance(clusters[j].prototype, 
+                                              trainData.get(i));
+
+                    if (distance < smallestDistance) {
+                        smallestDistance = distance;
+                        clusterIndex = j;
+                    }
+                }
+
+                if (!clusters[clusterIndex].currentMembers.contains(i)) {
+                    numberOfTransfers++;
+
+                    clusters[clusterIndex].currentMembers.add(i);
+
+                    // Remove it from the other cluster.
+                    removeFromOldCluster(clusterIndex, i);
+                }
+            }
+        /// A rather random number for now.
+        } while (numberOfTransfers < trainData.size() * 0.001);
+
 		return false;
 	}
 
@@ -151,6 +179,15 @@ public class KMeans extends ClusteringAlgorithm
         }
 
         return Math.sqrt(sum);
+    }
+
+    public void removeFromOldCluster(int currentCluster, int id) {
+        for (int i = 0; i < clusters.length; i++) {
+            if (clusters[i].currentMembers.contains(id)) {
+                clusters[i].currentMembers.remove(id);
+                clusters[i].previousMembers.add(id);
+            }
+        }
     }
 
 	// The following members are called by RunClustering, in order to present information to the user
