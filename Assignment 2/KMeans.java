@@ -105,6 +105,11 @@ public class KMeans extends ClusteringAlgorithm
 
         int numberOfTransfers = 0;
         do {
+            /// Recalculate the prototypes.
+            for (int i = 0; i < k; i++) {
+                clusters[i].prototype = calculatePrototype(clusters[i]);
+            }
+
             for (int i = 0; i < trainData.size(); i++) {
                 double smallestDistance = 
                         calculateDistance(clusters[0].prototype, trainData.get(i));
