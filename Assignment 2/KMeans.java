@@ -38,6 +38,9 @@ public class KMeans extends ClusteringAlgorithm
 	// Results of test()
 	private double hitrate;
 	private double accuracy;
+
+    /// Length of the floats
+    int floatLength;
 	
 	public KMeans(int k, Vector<float[]> trainData, Vector<float[]> testData, int dim)
 	{
@@ -46,6 +49,8 @@ public class KMeans extends ClusteringAlgorithm
 		this.testData = testData; 
 		this.dim = dim;
 		prefetchThreshold = 0.5;
+        
+        int floatLength = trainData.firstElement().length;
 		
 		// Here k new cluster are initialized
 		clusters = new Cluster[k];
@@ -58,6 +63,25 @@ public class KMeans extends ClusteringAlgorithm
 	{
 	 	//implement k-means algorithm here:
 		// Step 1: Select an initial random partioning with k clusters
+        Random random = new Random();        
+
+        /// Select the partitioning at random.
+        for (int i = 0; i < k; i++) {
+            clusters[i].currentMembers.add(random.nextInt(trainData.capacity()));
+
+            for (int j = 0; j < i; j++) {
+                if (clusters[i] == clusters[j]) {
+                    i--; /// Number not unique, retry.
+                    break;
+                }
+            }
+        }
+
+        /// Calculate all prototypes.
+        for (int i = 0; i < clusters.length; i++) {
+            clusters[i].prototype = calculatePrototype(clusters[i]);
+        }
+
 		// Step 2: Generate a new partition by assigning each datapoint to its closest cluster center
 		// Step 3: recalculate cluster centers
 		// Step 4: repeat until clustermembership stabilizes
@@ -77,6 +101,26 @@ public class KMeans extends ClusteringAlgorithm
 		return true;
 	}
 
+    public float[] calculatePrototype(Cluster cluster) {
+        float[] prototype = new float[floatLength];
+
+        /// Make sure that the prototype is filled with zero's.
+        Arrays.fill(prototype, 0);
+
+        /// Add all values to the prototype.
+        for (Integer memberId : cluster.currentMembers) {
+            float[] member = trainData.get(memberId);
+            for (int i = 0; i < prototype.length; i++) {
+                prototype[i] += member[i];
+            }
+        }
+
+        for (int i = 0; i < prototype.length; i++) {
+            prototype[i] /= cluster.currentMembers.size();
+        }
+
+        return prototype;
+    }
 
 	// The following members are called by RunClustering, in order to present information to the user
 	public void showTest()
