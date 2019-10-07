@@ -188,7 +188,7 @@ public class KMeans extends ClusteringAlgorithm
 
     public void removeFromOldCluster(int currentCluster, int id) {
         for (int i = 0; i < clusters.length; i++) {
-            if (clusters[i].currentMembers.contains(id)) {
+            if (clusters[i].currentMembers.contains(id) && i != currentCluster) {
                 clusters[i].currentMembers.remove(id);
                 clusters[i].previousMembers.add(id);
             }
