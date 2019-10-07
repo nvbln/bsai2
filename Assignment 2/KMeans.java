@@ -191,6 +191,17 @@ public class KMeans extends ClusteringAlgorithm
         }
     }
 
+    public int findCluster(int id) {
+        for (int i = 0; i < clusters.length; i++) {
+           if (clusters[i].currentMembers.contains(id)) {
+               return i;
+           }
+        }
+
+        // It doesn't have a cluster.
+        return -1;
+    }
+
 	// The following members are called by RunClustering, in order to present information to the user
 	public void showTest()
 	{
