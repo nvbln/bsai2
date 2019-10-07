@@ -136,7 +136,7 @@ public class KMeans extends ClusteringAlgorithm
                 }
             }
         /// A rather random number for now.
-        } while (numberOfTransfers < trainData.size() * 0.001);
+        } while (numberOfTransfers != 0);
 
 		return false;
 	}
