@@ -39,9 +39,6 @@ public class KMeans extends ClusteringAlgorithm
 	// Results of test()
 	private double hitrate;
 	private double accuracy;
-
-    /// Length of the floats
-    int floatLength;
 	
 	public KMeans(int k, Vector<float[]> trainData, Vector<float[]> testData, int dim)
 	{
@@ -50,8 +47,6 @@ public class KMeans extends ClusteringAlgorithm
 		this.testData = testData; 
 		this.dim = dim;
 		prefetchThreshold = 0.5;
-        
-        int floatLength = trainData.firstElement().length;
 		
 		// Here k new cluster are initialized
 		clusters = new Cluster[k];
@@ -151,11 +146,12 @@ public class KMeans extends ClusteringAlgorithm
 		// count number of hits
 		// count number of requests
 		// set the global variables hitrate and accuracy to their appropriate value
+
 		return true;
 	}
 
     public float[] calculatePrototype(Cluster cluster) {
-        float[] prototype = new float[floatLength];
+        float[] prototype = new float[dim];
 
         /// Make sure that the prototype is filled with zero's.
         Arrays.fill(prototype, 0);
