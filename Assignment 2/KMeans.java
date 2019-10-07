@@ -131,13 +131,48 @@ public class KMeans extends ClusteringAlgorithm
                 }
             }
         /// A rather random number for now.
-        } while (numberOfTransfers != 0);
+        } while (numberOfTransfers > 10);
 
 		return false;
 	}
 
 	public boolean test()
 	{
+
+        double totalURLs = 0;
+        double totalRequests = 0;
+        double totalHits = 0;
+
+        for (int i = 0; i < testData.size(); i++) {
+            int clusterIndex = findCluster(i);
+            if (clusterIndex != -1) {
+                Cluster cluster = clusters[clusterIndex];
+                float[] client = testData.get(i);
+                float[] prototype = cluster.prototype;
+                
+                for (int j = 0; j < client.length; j++) {
+                    int prototypeDimension = 
+                            (prototype[j] > prefetchThreshold) ? 1 : 0;
+
+                    /// Count the number of prefetched URLs.
+                    totalURLs += prototypeDimension;
+
+                    /// Count the number of requests.
+                    totalRequests += client[j];
+
+                    if (prototypeDimension == 1 && client[j] == 1) {
+                       totalHits++; 
+                    }
+                }
+            } else {
+                System.out.println("Could not find a corresponding cluster.");
+            }
+                
+        }
+
+        this.hitrate = (totalHits / totalRequests);
+        this.accuracy = (totalHits / totalURLs);
+
 		// iterate along all clients. Assumption: the same clients are in the same order as in the testData
 		// for each client find the cluster of which it is a member
 		// get the actual testData (the vector) of this client
