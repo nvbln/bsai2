@@ -62,7 +62,7 @@ public class Kohonen extends ClusteringAlgorithm
 				clusters[i][i2].prototype = new float[dim];
 				
 				/// Initializing random vector for each cluster
-				for (int i3 = 0; i < dim; i++) {
+				for (int i3 = 0; i3 < dim; i3++) {
 				    clusters[i][i2].prototype[i3] = rnd.nextFloat();
 				}
 				
@@ -185,7 +185,7 @@ public class Kohonen extends ClusteringAlgorithm
         int maxSize2 = Math.min((int) (Math.floor(BMUIndex[1] + neighborhoodSize))+1, n);
         
         for (int i = minSize; i < maxSize; i++) {
-            for (int i2 = minSize2; i < maxSize2; i++) {
+            for (int i2 = minSize2; i2 < maxSize2; i2++) {
                 updatePrototype(i, i2, learningRate, inputVector);
             }
         }
@@ -193,7 +193,7 @@ public class Kohonen extends ClusteringAlgorithm
     
     /// Updating specific prototype to resemble input vector better.
     public void updatePrototype(int i, int i2, double learningRate, float[] inputVector) {
-        for (int i3 = 0; i < dim; i++) {
+        for (int i3 = 0; i3 < dim; i3++) {
             clusters[i][i2].prototype[i3] = (float)((1-learningRate)*clusters[i][i2].prototype[i3] +
                     learningRate*inputVector[i3]);
         }
