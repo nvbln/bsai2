@@ -1,6 +1,6 @@
 import java.util.*;
 
-import KMeans.Cluster;
+//import KMeans.Cluster;
 
 public class Kohonen extends ClusteringAlgorithm
 {
