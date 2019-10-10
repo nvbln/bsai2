@@ -63,13 +63,18 @@ public class KMeans extends ClusteringAlgorithm
 
         /// Select the partitioning at random.
         for (int i = 0; i < k; i++) {
-            clusters[i].currentMembers.add(random.nextInt(trainData.capacity()));
-
+            int memberIndex = random.nextInt(trainData.capacity());
+            boolean unique = true;
             for (int j = 0; j < i; j++) {
-                if (clusters[i] == clusters[j]) {
+                if (clusters[j].currentMembers.contains(memberIndex)) {
                     i--; /// Number not unique, retry.
+                    unique = false;
                     break;
                 }
+            }
+
+            if (unique) {
+                clusters[i].currentMembers.add(memberIndex);
             }
         }
 
