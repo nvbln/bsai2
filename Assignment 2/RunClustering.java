@@ -228,10 +228,10 @@ public class RunClustering
 	public static void readData()
 	{
 		trainData = new Vector<float[]>();
-		readTrainData("train.dat");
+		readTrainData("data/train.dat");
 
 		testData  = new Vector<float[]>();
-		readTestData("test.dat");
+		readTestData("data/test.dat");
 	}
 
 	public static void readData(String trainFileName, String testFileName, String requestFileName, String clientFileName)
