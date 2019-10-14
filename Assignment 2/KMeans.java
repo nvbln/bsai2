@@ -62,6 +62,7 @@ public class KMeans extends ClusteringAlgorithm
         Random random = new Random();        
 
         /// Select the partitioning at random.
+        /// So we put one unique member in each cluster.
         for (int i = 0; i < k; i++) {
             int memberIndex = random.nextInt(trainData.capacity());
             boolean unique = true;
@@ -89,6 +90,8 @@ public class KMeans extends ClusteringAlgorithm
                     calculateDistance(clusters[0].prototype, trainData.get(i));
             int clusterIndex = 0;
 
+            /// Calculate the euclidean distance.
+            /// And save the cluster with the smallest distance.
             for (int j = 1; j < k; j++) {
                 double distance = 
                         calculateDistance(clusters[j].prototype, 
@@ -100,6 +103,7 @@ public class KMeans extends ClusteringAlgorithm
                 }
             }
 
+            /// Assign point to the cluster with the smallest distance.
             clusters[clusterIndex].currentMembers.add(i);
         }
 
@@ -110,6 +114,7 @@ public class KMeans extends ClusteringAlgorithm
                 clusters[i].prototype = calculatePrototype(clusters[i]);
             }
 
+            /// Recalculate the distance and reassign if necessary.
             for (int i = 0; i < trainData.size(); i++) {
                 double smallestDistance = 
                         calculateDistance(clusters[0].prototype, trainData.get(i));
@@ -135,6 +140,7 @@ public class KMeans extends ClusteringAlgorithm
                     removeFromOldCluster(clusterIndex, i);
                 }
             }
+        /// Continue until there are only ten transfers per 'round'.
         /// A rather random number for now.
         } while (numberOfTransfers > 10);
 
@@ -149,12 +155,16 @@ public class KMeans extends ClusteringAlgorithm
         double totalHits = 0;
 
         for (int i = 0; i < testData.size(); i++) {
+            /// Find the cluster that the client belongs to.
             int clusterIndex = findCluster(i);
+
             if (clusterIndex != -1) {
                 Cluster cluster = clusters[clusterIndex];
                 float[] client = testData.get(i);
                 float[] prototype = cluster.prototype;
                 
+                /// Count in how far the client is similar to the prototype
+                /// given the threshold.
                 for (int j = 0; j < client.length; j++) {
                     int prototypeDimension = 
                             (prototype[j] > prefetchThreshold) ? 1 : 0;
@@ -175,6 +185,7 @@ public class KMeans extends ClusteringAlgorithm
                 
         }
 
+        /// Calculate the hitrate and the accuracy.
         this.hitrate = (totalHits / totalRequests);
         this.accuracy = (totalHits / totalURLs);
 
@@ -190,6 +201,7 @@ public class KMeans extends ClusteringAlgorithm
 		return true;
 	}
 
+    /// Calculates the prototype by averaging all clients.
     public float[] calculatePrototype(Cluster cluster) {
         float[] prototype = new float[dim];
 
@@ -204,6 +216,8 @@ public class KMeans extends ClusteringAlgorithm
             }
         }
 
+        /// Divide all values by the number of members
+        /// (giving the average).
         for (int i = 0; i < prototype.length; i++) {
             prototype[i] /= cluster.currentMembers.size();
         }
@@ -222,6 +236,8 @@ public class KMeans extends ClusteringAlgorithm
         return Math.sqrt(sum);
     }
 
+    /// Iterates through all clusters and moves the member from current to
+    /// previous if it is part of current.
     public void removeFromOldCluster(int currentCluster, int id) {
         for (int i = 0; i < clusters.length; i++) {
             if (clusters[i].currentMembers.contains(id) && i != currentCluster) {
@@ -231,6 +247,7 @@ public class KMeans extends ClusteringAlgorithm
         }
     }
 
+    /// Finds the cluster that a member belongs to.
     public int findCluster(int id) {
         for (int i = 0; i < clusters.length; i++) {
            if (clusters[i].currentMembers.contains(id)) {
