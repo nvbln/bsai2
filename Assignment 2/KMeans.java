@@ -107,7 +107,9 @@ public class KMeans extends ClusteringAlgorithm
             clusters[clusterIndex].currentMembers.add(i);
         }
 
+        int previousNumberOfTransfers = 0;
         int numberOfTransfers = 0;
+        int repetitions = 0;
         do {
             /// Recalculate the prototypes.
             for (int i = 0; i < k; i++) {
@@ -140,9 +142,16 @@ public class KMeans extends ClusteringAlgorithm
                     removeFromOldCluster(clusterIndex, i);
                 }
             }
-        /// Continue until there are only ten transfers per 'round'.
-        /// A rather random number for now.
-        } while (numberOfTransfers > 10);
+
+            if (numberOfTransfers != previousNumberOfTransfers) {
+                repetitions = 0;
+            } else {
+                repetitions++;
+            }
+            previousNumberOfTransfers = numberOfTransfers;
+
+        /// Continue until we stay in the same minimum for 50 rounds.
+        } while (repetitions > 50);
 
 		return false;
 	}
