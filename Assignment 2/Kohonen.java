@@ -86,6 +86,7 @@ public class Kohonen extends ClusteringAlgorithm
 	        double neighborhoodSize = n/2.0*(1 - t/(double) epochs);
 	        
 			// Step 3: Every input vector is presented to the map (always in the same order)
+
 	        for (float[] inputVector : trainData) {
 
 			// For each vector its Best Matching Unit is found, and :
@@ -95,6 +96,15 @@ public class Kohonen extends ClusteringAlgorithm
 	            updateNodes(BMUIndex, neighborhoodSize, learningRate, inputVector);
 	        }
 	    }
+	    int idx = 0;
+	    for (float[] inputVector : trainData) {
+
+		// For each vector its Best Matching Unit is found, and :
+	        int[] BMUIndex = findBMU(inputVector);
+	            
+            clusters[BMUIndex[0]][BMUIndex[1]].currentMembers.add(idx);
+            idx++;
+        }
 	    // Since training kohonen maps can take quite a while, presenting the user with a progress bar would be nice
 		return true;
 	}
@@ -234,5 +244,6 @@ public class Kohonen extends ClusteringAlgorithm
 	{
 		this.prefetchThreshold = prefetchThreshold;
 	}
+	
 }
 
