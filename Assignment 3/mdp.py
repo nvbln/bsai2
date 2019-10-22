@@ -43,12 +43,29 @@ class Map :
     ### you write this method
     def valueIteration(self) :
         ### 1. initialize utilities to 0
+        
+        tempUtility = {}
+        for s in self.states.values():
+            tempUtility[s] = 0.0
+            if not s.isGoal and not s.isWall:
+                s.utility = 0.0
+        
         ### 2. repeat value iteration loop until largest change is smaller than
         ###    stop criterion
         
-        pass #placeholder, delete when implementing
+        minDiff = self.stop_crit + 1
         
-        
+        while minDiff >= self.stop_crit:    
+            minDiff = 0
+            for s in self.states.values():
+                if s.isGoal or s.isWall:
+                    continue
+                tempUtility[s] = s.utility
+                a = s.selectBestAction()
+                s.utility = s.reward + self.gamma*s.computeEU(a)
+                if abs(tempUtility[s] - s.utility) > minDiff:
+                    minDiff = abs(tempUtility[s] - s.utility)
+
 
     ### you write this method
     def policyIteration(self) :
