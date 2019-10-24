@@ -76,8 +76,8 @@ class Map :
             s.policy = random.choice(s.actions)
             #print(s, s.policy)
         ### 2 repeat policy iteration loop until policy is stable
-        unchanged = True
-        while unchanged:
+        unchanged = False
+        while not unchanged:
             # U <- policy-evaluation(pi,U,mdp)
             self.calculateUtilitiesLinear()
             unchanged = True
