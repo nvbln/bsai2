@@ -70,9 +70,24 @@ class Map :
     ### you write this method
     def policyIteration(self) :
         ### 1. initialize random policy
+        for s in self.states.values():
+            if s.isGoal or s.isWall:
+                continue
+            s.policy = random.choice(s.actions)
+            #print(s, s.policy)
         ### 2 repeat policy iteration loop until policy is stable
-    
-        pass #placeholder, delete when implementing
+        unchanged = True
+        while unchanged:
+            # U <- policy-evaluation(pi,U,mdp)
+            self.calculateUtilitiesLinear()
+            unchanged = True
+            for s in self.states.values():
+                if s.isGoal or s.isWall:
+                    continue
+                a = s.selectBestAction()
+                if s.computeEU(a)>s.computeEU(s.policy):
+                    s.policy = a
+                    unchanged = False
     
     def calculateUtilitiesLinear(self) :
         n_states = len(self.states)
